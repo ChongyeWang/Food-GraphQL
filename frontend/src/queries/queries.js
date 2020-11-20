@@ -18,17 +18,23 @@ const getBooksQuery = gql`
     }
 `;
 
-const getUserQuery = gql`
-    {
-        users {
+const getRestaurantQuery = gql`
+    query getRestaurantQuery($id: ID){
+        restaurant (id: $id) {
             username
-            id
+            name
+            phone
+            location
+            dish
+            review
         }
     }
 `;
 
+
+
 export { 
     getAuthorsQuery, 
     getBooksQuery,
-    getUserQuery
+    getRestaurantQuery,
 };

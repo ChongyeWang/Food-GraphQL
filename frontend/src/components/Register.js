@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import { graphql, compose } from 'react-apollo';
-import {  getUserQuery } from '../queries/queries';
-import { addUserMutation } from '../mutation/mutations';
 
+import { addUserMutation } from '../mutation/mutations';
+import { Redirect } from 'react-router';
 
 // import {Redirect} from 'react-router';
 
@@ -76,41 +76,40 @@ class Register extends Component{
     }
     submitRegister(e){
         e.preventDefault()
-        try {
-            this.props.addUserMutation({
-                variables: {
-                    username : this.state.username,
-                    password : this.state.password,
-                    email : this.state.email,
-                    phone : this.state.phone,
-                    address : this.state.address,
-                },
-                // refetchQueries: [{ query: getUserQuery }]
-                
-            }).then(function(data) {
-                let result = data.data.addUser.username;
-                if (result == null) {
-                    console.log(2)
-                }
-                else {
-                    console.log(3);
-                }
-            });
-
-        } catch {
-            console.log(233333)
-        }
-        
+   
+        this.props.addUserMutation({
+            variables: {
+                username : this.state.username,
+                password : this.state.password,
+                email : this.state.email,
+                phone : this.state.phone,
+                address : this.state.address,
+            },
+            // refetchQueries: [{ query: getUserQuery }]
+            
+        }).then(data => {
+            let result = data.data.addUser.username;
+            if (result == null) {
+                this.setState({
+                    authFlag: false
+                });
+            }
+            else {
+                this.setState({
+                    authFlag: true
+                });
+            }
+        });
 
     }
 
 
 
     render(){ 
-        // let redirectVar = null;
-        //  if (this.state.authFlag === true) {
-        //     redirectVar = <Redirect to= "/users/login"/>;
-        // }
+        let redirectVar = null;
+         if (this.state.authFlag === true) {
+            redirectVar = <Redirect to= "/users/login"/>;
+        }
         // let message = "New User Register.";
         // console.log(this.state.message);
         // if (this.state.message === true) {
@@ -118,7 +117,7 @@ class Register extends Component{
         // }
         return(
             <div>
-                {/* {redirectVar} */}
+                {redirectVar}
                 <div class="container">
                     
                     <div class="login-form">
@@ -127,7 +126,6 @@ class Register extends Component{
                             <h2>Register</h2>
                                 
                             </div>
-                            
                                 <div class="form-group">
                                     <input onChange = {this.usernameChangeHandler} type="text" class="form-control" name="username" placeholder="Username"/>
                                 </div>
@@ -158,6 +156,5 @@ class Register extends Component{
 }
 
 export default compose(
-    graphql(getUserQuery, { name: "getUserQuery" }),
     graphql(addUserMutation, { name: "addUserMutation" }),
 )(Register);

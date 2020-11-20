@@ -1,6 +1,6 @@
 const graphql = require('graphql');
-const user = require('../models/user.js');
 const User = require("../models/user.js");
+const Restaurant = require("../models/restaurant.js");
 
 const {
     GraphQLObjectType,
@@ -82,6 +82,32 @@ const UserType = new GraphQLObjectType({
     })
 });
 
+const DishType = new GraphQLObjectType({
+    name: 'Dish',
+    fields: () => ({
+        id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        category: { type: GraphQLString },
+        price: { type: GraphQLString },
+    })
+});
+
+
+const RestaurantType = new GraphQLObjectType({
+    name: 'Restaurant',
+    fields: () => ({
+        id: { type: GraphQLID },
+        username: { type: GraphQLString },
+        password: { type: GraphQLString },
+        name: { type: GraphQLString },
+        phone: { type: GraphQLString },
+        location: { type: GraphQLString },
+        dish: { type: GraphQLString },
+        review: { type: GraphQLString },
+    })
+});
+
+
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     description: 'Root Query',
@@ -124,6 +150,28 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(UserType),
             resolve(parent, args) {
                 return User.find({});;
+            }
+        },
+
+        restaurant: {
+            type: RestaurantType,
+            args: { id: { type: GraphQLID } },
+            async resolve(parent, args) {
+                let result = await Restaurant.findById(args.id);
+                return {
+                    'username': result.username,
+                    'name': result.name,
+                    'phone': result.phone,
+                    'location': result.location,
+                    'dish': JSON.stringify(result.dish),
+                    'review': JSON.stringify(result.review)
+                };
+            }
+        },
+        restaurants: {
+            type: new GraphQLList(RestaurantType),
+            resolve(parent, args) {
+                return Restaurant.find({});;
             }
         },
     }
@@ -180,30 +228,7 @@ const Mutation = new GraphQLObjectType({
                 address: { type: GraphQLString },
             },
             async resolve(parent, args) {
-                var username = "";
                 let result = await User.findOne({username: args.username});
-                // {
-                
-                //     if (user) {
-                //         username = null;
-                //     }
-                //     else {
-                //         console.log(args)
-                //         const user = new User(
-                //         {
-                //             username: args.username,
-                //             password: args.password,
-                //             email: args.email,
-                //             phone: args.phone,
-                //             address: args.address,
-                //             // id: users.length+1
-                //         });
-                //         user.save();
-
-                //         username = args.username
-                //     }
-                    
-                // });
                 if (result != null) {
                     return {'username': null}
                 }
@@ -222,13 +247,130 @@ const Mutation = new GraphQLObjectType({
                 }
                 
             }
-        }
+        },
+
+        loginUser: {
+            type: UserType,
+            args: {
+                username: { type: GraphQLString },
+                password: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                let result = await User.findOne({username: args.username, password: args.password});
+                if (result != null) {
+                    return {'username': args.username, 'id': result._id}
+                }
+                else {
+                    return {'username': null}
+                }
+                
+            }
+        },
+
+        addRestaurant: {
+            type: RestaurantType,
+            args: {
+                username: { type: GraphQLString },
+                password: { type: GraphQLString },
+                name: { type: GraphQLString },
+                phone: { type: GraphQLString },
+                location: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                let result = await Restaurant.findOne({username: args.username});
+                if (result != null) {
+                    return {'username': null}
+                    console.log(1)
+                }
+                else {
+                    console.log(2)
+                    const restaurant = new Restaurant(
+                    {
+                        username: args.username,
+                        password: args.password,
+                        name: args.name,
+                        phone: args.phone,
+                        location: args.location,
+                        // id: users.length+1
+                    });
+                    restaurant.save();
+                    return {'username': args.username}
+                }
+                
+            }
+        },
+
+        loginRestaurant: {
+            type: UserType,
+            args: {
+                username: { type: GraphQLString },
+                password: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                let result = await Restaurant.findOne({username: args.username, password: args.password});
+                if (result != null) {
+                    return {'username': args.username, 'id': result._id}
+                }
+                else {
+                    return {'username': null}
+                }
+                
+            }
+        },
+
+        editRestaurant: {
+            type: RestaurantType,
+            args: {
+                username: { type: GraphQLString },
+                name: { type: GraphQLString },
+                phone: { type: GraphQLString },
+                location: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                console.log(args.id)
+                await Restaurant.update(
+                    { username: args.username },
+                    { 
+                        name: args.name,
+                        phone: args.phone,
+                        location: args.location
+                    },
+                ) 
+                return {'name': args.name}
+            }
+        },
+
+        addDish: {
+            type: DishType,
+            args: {
+                username: { type: GraphQLString },
+                name: { type: GraphQLString },
+                category: { type: GraphQLString },
+                price: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                await Restaurant.update(
+                    { username: args.username },
+                    { 
+                        $push: { 
+                            dish: {"name": args.name, "category": args.category, "price": args.price}
+                            
+                        } 
+                    },
+            
+                ) 
+                return {'name': args.name}
+                
+            }
+        },
+
     }
 });
 
+
 const schema = new GraphQLSchema({
     query: RootQuery,
-    mutation: Mutation
+    mutation: Mutation,
 });
 
 module.exports = schema;

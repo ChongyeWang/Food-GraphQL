@@ -27,9 +27,24 @@ const getRestaurantQuery = gql`
             location
             dish
             review
+            order
         }
     }
 `;
+
+
+const getUserQuery = gql`
+    query getUserQuery($id: ID){
+        user (id: $id) {
+            username
+            email
+            phone
+            address
+            order
+        }
+    }
+`;
+
 
 
 
@@ -37,4 +52,5 @@ export {
     getAuthorsQuery, 
     getBooksQuery,
     getRestaurantQuery,
+    getUserQuery,
 };

@@ -73,6 +73,7 @@ const UserType = new GraphQLObjectType({
         email: { type: GraphQLString },
         phone: { type: GraphQLString },
         address: { type: GraphQLString },
+        order: { type: GraphQLString },
         // author: {
         //     type: AuthorType,
         //     resolve(parent, args) {
@@ -104,6 +105,7 @@ const RestaurantType = new GraphQLObjectType({
         location: { type: GraphQLString },
         dish: { type: GraphQLString },
         review: { type: GraphQLString },
+        order: { type: GraphQLString },
     })
 });
 
@@ -142,8 +144,15 @@ const RootQuery = new GraphQLObjectType({
         user: {
             type: UserType,
             args: { id: { type: GraphQLID } },
-            resolve(parent, args) {
-                return User.findById(args.id);
+            async resolve(parent, args) {
+                let result = await User.findById(args.id);
+                return {
+                    'username': result.username,
+                    'email': result.email,
+                    'phone': result.phone,
+                    'address': result.address,
+                    'order': JSON.stringify(result.order)
+                };
             }
         },
         users: {
@@ -164,7 +173,8 @@ const RootQuery = new GraphQLObjectType({
                     'phone': result.phone,
                     'location': result.location,
                     'dish': JSON.stringify(result.dish),
-                    'review': JSON.stringify(result.review)
+                    'review': JSON.stringify(result.review),
+                    'order': JSON.stringify(result.order)
                 };
             }
         },

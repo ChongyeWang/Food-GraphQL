@@ -16,6 +16,7 @@ class RestaurantProfile extends Component{
             dish: [],
             review: "",
             reviews: [],
+            order: []
 
 
         }
@@ -50,7 +51,8 @@ class RestaurantProfile extends Component{
                 phone: data.data.restaurant.phone,
                 location: data.data.restaurant.location,
                 dish: JSON.parse(data.data.restaurant.dish),
-                reviews: JSON.parse(data.data.restaurant.review)
+                reviews: JSON.parse(data.data.restaurant.review),
+                order: JSON.parse(data.data.restaurant.order)
             });
         });
 
@@ -97,6 +99,7 @@ class RestaurantProfile extends Component{
    
 
     render(){
+    
         var username = this.state.username;
         var name = this.state.name;
 
@@ -104,6 +107,10 @@ class RestaurantProfile extends Component{
         var location = this.state.location;
         var dish = this.state.dish;
         var reviews = this.state.reviews;
+        var order = this.state.order;
+
+        console.log(order);
+        
 
         var dishItems = dish.map(d => (
             <li key={d._id}>
@@ -117,6 +124,13 @@ class RestaurantProfile extends Component{
             <li key={r._id}>
             {r.content} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
             {r.date} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
+            </li>))
+
+        var orderItems = order.map(r => (
+            <li key={r._id}>
+            {r.content} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
+            {r.status} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
+            {r.date}
             </li>))
 
         var id = this.props.match.params.id;
@@ -152,6 +166,9 @@ class RestaurantProfile extends Component{
                     Category<span style={{display:'inline-block', width: '50px'}}></span> 
                     Price<span style={{display:'inline-block', width: '50px'}}></span> </h3>
                     </div>
+                    <h3>{dishItems}</h3>
+
+                    <h3 style={{fontWeight: "bold"}}>All Orders: </h3>
                     <h3>{dishItems}</h3>
 
                     <button onClick = {this.placeOrder} type="submit" class="btn btn-primary">Place Order</button>

@@ -17,6 +17,8 @@ import LoginRestaurant from './components/LoginRestaurant';
 import RestaurantProfile from './components/RestaurantProfile';
 import RestaurantEdit from './components/RestaurantEdit';
 import Dish from './components/Dish';
+import UserPage from './components/UserPage';
+
 // apollo client setup
 const client = new ApolloClient({
     uri: 'http://localhost:3001/graphql',
@@ -39,6 +41,8 @@ class App extends Component {
                   <Route path="/restaurant/addDish" component={Dish}/>
                   <Route path="/restaurant-profile/:id" component={RestaurantProfile}/>
                   <Route path="/logout" component={Logout}/>
+
+                  <Route path="/user-profile/:id" component={UserPage}/>
             
                   </div>
                 </BrowserRouter>

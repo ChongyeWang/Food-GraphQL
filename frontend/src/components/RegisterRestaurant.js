@@ -70,7 +70,7 @@ class RegisterRestaurant extends Component{
                 variables: {
                     username : this.state.username,
                     password : this.state.password,
-                    name : this.state.email,
+                    name : this.state.name,
                     phone : this.state.phone,
                     location : this.state.location,
                 },

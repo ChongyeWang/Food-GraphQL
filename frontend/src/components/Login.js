@@ -51,7 +51,8 @@ class Login extends Component {
             
         }).then(data => {
             let result = data.data.loginUser;
-            if (result == null) {
+            console.log(result)
+            if (result.username == null) {
                 this.setState({
                     authFlag: false
                 });

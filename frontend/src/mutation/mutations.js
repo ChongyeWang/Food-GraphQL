@@ -74,6 +74,28 @@ const addDishMutation = gql`
     }
 `;
 
+const editUserMutation = gql`
+    mutation ($username: String, $email: String, $phone: String, $address: String){
+        editUser(username: $username, email: $email, phone: $phone, address: $address){
+            username,
+            email,
+            phone,
+            address
+        }
+    }
+`;
+
+const addOrderMutation = gql`
+    mutation ($restaurantId: String, $userId:String, $content: String, $status: String){
+        addOrder(restaurantId: $restaurantId, userId: $userId, content: $content, status: $status){
+            restaurantId,
+            userId,
+            content,
+            status,
+        }
+    }
+`;
+
 export {
     addBookMutation,
     addUserMutation,
@@ -82,4 +104,6 @@ export {
     loginRestaurantMutation,
     editRestaurantMutation,
     addDishMutation,
+    editUserMutation,
+    addOrderMutation,
 };

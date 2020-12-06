@@ -16,10 +16,10 @@ var UserSchema = new mongoose.Schema({
         restaurantId: { type: String },
         content: { type: String },
         status: { type: String },
+        date: { type: String },
       }
     ],
 
-    following: [String]
 });
 
 // Export the Mongoose model

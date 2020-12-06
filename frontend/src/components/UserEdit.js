@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Redirect } from 'react-router';
-import { editRestaurantMutation } from '../mutation/mutations';
+import { editUserMutation } from '../mutation/mutations';
 import {Link} from 'react-router-dom';
 import { graphql, compose } from 'react-apollo';
 //Define a Login Component
@@ -11,7 +11,7 @@ class UserEdit extends Component{
         this.state = {
             email : "",
             phone : "",
-            location : "",
+            address : "",
             authFlag : false
         }
     }
@@ -30,29 +30,28 @@ class UserEdit extends Component{
 
     locationChangeHandler = (e) => {
         this.setState({
-            location : e.target.value
+            address : e.target.value
         })
     }
 
     submitEdit = (e) => {
         console.log(localStorage.getItem("restaurant_username"))
-        this.props.editRestaurantMutation({
+        this.props.editUserMutation({
             variables: {
-                username: localStorage.getItem("restaurant_username"),
-                name : this.state.email,
+                username: localStorage.getItem("user_username"),
+                email : this.state.email,
                 phone : this.state.phone,
-                location : this.state.location,
+                address : this.state.address,
             },
             // refetchQueries: [{ query: getUserQuery }]
             
         }).then(data => {
-            let result = data.data.editRestaurant;
+            let result = data.data.editUser;
             console.log(result)
             if (result == null) {
                 this.setState({
                     authFlag: false
                 });
-                console.log(1)
             }
             else {
                 this.setState({
@@ -81,7 +80,7 @@ class UserEdit extends Component{
                             </div>
                             
                                 <div class="form-group">
-                                    <input onChange = {this.emaliChangeHandler} type="text" class="form-control" name="name" placeholder="Name"/>
+                                    <input onChange = {this.emaliChangeHandler} type="text" class="form-control" name="email" placeholder="Email"/>
                                 </div>
                               
                                 <div class="form-group">
@@ -101,6 +100,6 @@ class UserEdit extends Component{
 }
 //export Register Component
 export default compose(
-    graphql(editRestaurantMutation, { name: "editRestaurantMutation" }),
+    graphql(editUserMutation, { name: "editUserMutation" }),
 
 )(UserEdit);

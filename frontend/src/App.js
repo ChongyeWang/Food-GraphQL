@@ -18,6 +18,8 @@ import RestaurantProfile from './components/RestaurantProfile';
 import RestaurantEdit from './components/RestaurantEdit';
 import Dish from './components/Dish';
 import UserPage from './components/UserPage';
+import UserEdit from './components/UserEdit';
+import Restaurants from './components/Restaurants';
 
 // apollo client setup
 const client = new ApolloClient({
@@ -33,6 +35,7 @@ class App extends Component {
                   <div>
                   <Route path="/" component={Nav}/>
                   <Route path="/home" component={Home}/>
+                  <Route path="/restaurants" component={Restaurants}/>
                   <Route path="/users/register" component={Register}/>
                   <Route path="/users/login" component={Login}/>
                   <Route path="/restaurant/register" component={RegisterRestaurant}/>
@@ -43,6 +46,7 @@ class App extends Component {
                   <Route path="/logout" component={Logout}/>
 
                   <Route path="/user-profile/:id" component={UserPage}/>
+                  <Route path="/user/edit" component={UserEdit}/>
             
                   </div>
                 </BrowserRouter>

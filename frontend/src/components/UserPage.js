@@ -70,7 +70,7 @@ class UserPage extends Component{
                     <h3>Phone : {phone}</h3>
                     <h3>Address : {address}</h3>
 
-                    <h3><a href={'/users/edit'}>Edit Profile Information</a></h3>
+                    <h3><a href={'/user/edit'}>Edit Profile Information</a></h3>
 
                     {orderItems}
 

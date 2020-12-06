@@ -93,6 +93,17 @@ const DishType = new GraphQLObjectType({
     })
 });
 
+const OrderType = new GraphQLObjectType({
+    name: 'Order',
+    fields: () => ({
+        restaurantId: { type: GraphQLID },
+        userId: { type: GraphQLString },
+        content: { type: GraphQLString },
+        status: { type: GraphQLString },
+        date: { type: GraphQLString },
+    })
+});
+
 
 const RestaurantType = new GraphQLObjectType({
     name: 'Restaurant',
@@ -350,6 +361,29 @@ const Mutation = new GraphQLObjectType({
             }
         },
 
+        editUser: {
+            type: UserType,
+            args: {
+                username: { type: GraphQLString },
+                email: { type: GraphQLString },
+                phone: { type: GraphQLString },
+                address: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                console.log(args)
+                await User.update(
+                    { username: args.username },
+                    { 
+                        email: args.email,
+                        phone: args.phone,
+                        address: args.address
+                    },
+                ) 
+                return {'name': args.name}
+            }
+        },
+
+
         addDish: {
             type: DishType,
             args: {
@@ -370,6 +404,49 @@ const Mutation = new GraphQLObjectType({
             
                 ) 
                 return {'name': args.name}
+                
+            }
+        },
+
+        addOrder: {
+            type: OrderType,
+            args: {
+                restaurantId: { type: GraphQLString },
+                userId: { type: GraphQLString },
+                content: { type: GraphQLString },
+                status: { type: GraphQLString },
+            },
+
+    
+            async resolve(parent, args) {
+                console.log(args);
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0'); 
+                var yyyy = today.getFullYear();
+                today = yyyy + '-' + mm + '-' + dd;
+
+                await Restaurant.update(
+                    { _id: args.restaurantId },
+                    { 
+                        $push: 
+                        { 
+                            order: {"userId": args.userId, "content": args.content, "status": "Pending", "date": today}
+                        } 
+                    },
+                    
+                ) ;
+                await User.update(
+                    { _id: args.userId },
+                    { 
+                        $push: 
+                        { 
+                            order: {"restaurantId": args.restaurantId, "content": args.content, "status": "Pending", "date": today}
+                        } 
+                    },
+                    
+                ) ;
+                return {'content': args.content}
                 
             }
         },

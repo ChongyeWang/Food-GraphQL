@@ -45,6 +45,14 @@ const getUserQuery = gql`
     }
 `;
 
+const getRestaurantsQuery = gql`
+    {
+        restaurants {
+            name
+            id
+        }
+    }
+`;
 
 
 
@@ -53,4 +61,5 @@ export {
     getBooksQuery,
     getRestaurantQuery,
     getUserQuery,
+    getRestaurantsQuery,
 };

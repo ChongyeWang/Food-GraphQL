@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { getRestaurantQuery } from '../queries/queries';
 import { addOrderMutation } from '../mutation/mutations';
+import { updateOrderMutation } from '../mutation/mutations';
 import { graphql, compose } from 'react-apollo';
 import { withApollo } from 'react-apollo'
 import {Link} from 'react-router-dom';
@@ -55,7 +56,6 @@ class RestaurantProfile extends Component{
                 order: JSON.parse(data.data.restaurant.order)
             });
         });
-
     }
 
     placeOrder(e) {
@@ -82,6 +82,20 @@ class RestaurantProfile extends Component{
                     authFlag: true
                 });
             }
+        });
+    }
+
+    updateOrder = (id) => {
+        console.log(id)
+        this.props.updateOrderMutation({
+            variables: {
+                restaurantId: localStorage.getItem('restaurant_id'),
+                orderId: id,
+            },
+            // refetchQueries: [{ query: getUserQuery }]
+        }).then(data => {
+            let result = data.data.updateOrder;
+            console.log(result);
         });
     }
 
@@ -115,19 +129,16 @@ class RestaurantProfile extends Component{
       
 
     render(){
-    
         var username = this.state.username;
         var name = this.state.name;
-
         var phone = this.state.phone;
         var location = this.state.location;
         var dish = this.state.dish;
         var reviews = this.state.reviews;
         var order = this.state.order;
-        
 
         var dishItems = dish.map(d => (
-            <li key={d._id}>
+            <li style={{fontSize: '20px'}} key={d._id}>
               {d.name} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
               {d.category} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
               {d.price} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
@@ -142,15 +153,18 @@ class RestaurantProfile extends Component{
             </li>))
 
         var orderItems = order.map(r => (
-            <li key={r._id}>
+            <li style={{fontSize: '20px'}} key={r._id }>
+            <a>
+                <Link to={"/user-profile/" + r.userId} style={{color:'blue'}}>User Profile</Link>
+            </a> <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
+
             {r.content} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
             {r.status} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
             {r.date} <span style={{fontWeight: 'bold', marginRight: '20px'}}></span>
-            <button onClick = {() => {this.updateOrder(r.name)}} class="btn btn-primary">Update</button> 
+            <button onClick = {() => {this.updateOrder(r._id)}} class="btn btn-primary">Update</button> 
             </li>))
 
         var id = this.props.match.params.id;
-
 
         let restaurantId = localStorage.getItem("restaurant_id")
         let userId = localStorage.getItem("restaurant_id")
@@ -178,8 +192,8 @@ class RestaurantProfile extends Component{
                     <br></br>
                     <h3 style={{fontWeight: "bold"}}>All Dishes: </h3>
                     <div>
-                    <h3 style={{marginLeft: '30px', fontWeight: "bold"}}
-                    >Name<span style={{display:'inline-block', width: '50px'}}></span> 
+                    <h3 style={{marginLeft: '30px', fontWeight: "bold" ,fontSize: '18px'}}
+                    >Name<span style={{display:'inline-block', width: '50px'  }}></span> 
                     Category<span style={{display:'inline-block', width: '50px'}}></span> 
                     Price<span style={{display:'inline-block', width: '50px'}}></span> </h3>
                     </div>
@@ -189,8 +203,6 @@ class RestaurantProfile extends Component{
                     <br></br><br></br>
                     <h3 style={{fontWeight: "bold"}}>All Orders: </h3>
                     <h3>{orderItems}</h3>
-
-                    <button onClick = {this.placeOrder} type="submit" class="btn btn-primary">Place Order</button>
 
                     <h3 style={{fontWeight: "bold"}}>All Reviews: </h3>
                     <h3>{reviewItems}</h3>
@@ -214,5 +226,6 @@ export default compose(
     withApollo,
     graphql(getRestaurantQuery, { name: "getRestaurantQuery" }),
     graphql(addOrderMutation, { name: "addOrderMutation" }),
+    graphql(updateOrderMutation, { name: "updateOrderMutation" }),
 
 )(RestaurantProfile);

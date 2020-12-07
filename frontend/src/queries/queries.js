@@ -1,23 +1,5 @@
 import { gql } from 'apollo-boost';
 
-const getAuthorsQuery = gql`
-    {
-        authors {
-            name
-            id
-        }
-    }
-`;
-
-const getBooksQuery = gql`
-    {
-        books {
-            name
-            id
-        }
-    }
-`;
-
 const getRestaurantQuery = gql`
     query getRestaurantQuery($id: ID){
         restaurant (id: $id) {
@@ -55,11 +37,19 @@ const getRestaurantsQuery = gql`
 `;
 
 
+const searchRestaurantsQuery = gql`
+    query searchRestaurantsQuery($keyword: String){
+        searchRestaurants (keyword: $keyword) {
+            search
+        }
+    }
+`;
+
+
 
 export { 
-    getAuthorsQuery, 
-    getBooksQuery,
     getRestaurantQuery,
     getUserQuery,
     getRestaurantsQuery,
+    searchRestaurantsQuery,
 };

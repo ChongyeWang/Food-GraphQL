@@ -110,11 +110,7 @@ class Register extends Component{
          if (this.state.authFlag === true) {
             redirectVar = <Redirect to= "/users/login"/>;
         }
-        // let message = "New User Register.";
-        // console.log(this.state.message);
-        // if (this.state.message === true) {
-        //     message = "Username Already Exists";
-        // }
+
         return(
             <div>
                 {redirectVar}

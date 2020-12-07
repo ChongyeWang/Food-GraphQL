@@ -96,6 +96,15 @@ const addOrderMutation = gql`
     }
 `;
 
+const updateOrderMutation = gql`
+    mutation ($restaurantId: String, $orderId:String){
+        updateOrder(restaurantId: $restaurantId, orderId: $orderId){
+            restaurantId,
+            orderId,
+        }
+    }
+`;
+
 export {
     addBookMutation,
     addUserMutation,
@@ -106,4 +115,5 @@ export {
     addDishMutation,
     editUserMutation,
     addOrderMutation,
+    updateOrderMutation,
 };

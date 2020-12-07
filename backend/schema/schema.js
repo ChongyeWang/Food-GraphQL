@@ -12,57 +12,13 @@ const {
     GraphQLNonNull
 } = graphql;
 
-// dummy data
-var books = [
-    { name: 'Name of the Wind', genre: 'Fantasy', id: '1', authorId: '1' },
-    { name: 'The Final Empire', genre: 'Fantasy', id: '2', authorId: '2' },
-    { name: 'The Hero of Ages', genre: 'Fantasy', id: '4', authorId: '2' },
-    { name: 'The Long Earth', genre: 'Sci-Fi', id: '3', authorId: '3' },
-    { name: 'The Colour of Magic', genre: 'Fantasy', id: '5', authorId: '3' },
-    { name: 'The Light Fantastic', genre: 'Fantasy', id: '6', authorId: '3' },
-];
-
-var authors = [
-    { name: 'Patrick Rothfuss', age: 44, id: '1' },
-    { name: 'Brandon Sanderson', age: 42, id: '2' },
-    { name: 'Terry Pratchett', age: 66, id: '3' }
-];
-
 var users = [
     {  username: 'Name of the Wind', email: 'Fantasy', id: '1' },
     { username: 'The Final Empire', email: 'Fantasy', id: '2' },
   
 ];
 
-const BookType = new GraphQLObjectType({
-    name: 'Book',
-    fields: () => ({
-        id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        genre: { type: GraphQLString },
-        author: {
-            type: AuthorType,
-            resolve(parent, args) {
-                return authors.find(author => author.id === parent.authorId);
-            }
-        }
-    })
-});
 
-const AuthorType = new GraphQLObjectType({
-    name: 'Author',
-    fields: () => ({
-        id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        age: { type: GraphQLInt },
-        books: {
-            type: new GraphQLList(BookType),
-            resolve(parent, args) {
-                return books.filter(book => book.authorId === parent.id);
-            }
-        }
-    })
-});
 
 const UserType = new GraphQLObjectType({
     name: 'User',
@@ -96,7 +52,8 @@ const DishType = new GraphQLObjectType({
 const OrderType = new GraphQLObjectType({
     name: 'Order',
     fields: () => ({
-        restaurantId: { type: GraphQLID },
+        orderId: { type: GraphQLString },
+        restaurantId: { type: GraphQLString },
         userId: { type: GraphQLString },
         content: { type: GraphQLString },
         status: { type: GraphQLString },
@@ -117,6 +74,8 @@ const RestaurantType = new GraphQLObjectType({
         dish: { type: GraphQLString },
         review: { type: GraphQLString },
         order: { type: GraphQLString },
+        keyword: { type: GraphQLString },
+        search: { type: GraphQLString },
     })
 });
 
@@ -125,35 +84,10 @@ const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     description: 'Root Query',
     fields: {
-        book: {
-            type: BookType,
-            args: { id: { type: GraphQLID } },
-            resolve(parent, args) {
-                return books.find(book => book.id === args.id);
-            }
-        },
-        author: {
-            type: AuthorType,
-            args: { id: { type: GraphQLID } },
-            resolve(parent, args) {
-                return authors.find(author => author.id === args.id );
-            }
-        },
-        books: {
-            type: new GraphQLList(BookType),
-            resolve(parent, args) {
-                return books;
-            }
-        },
-        authors: {
-            type: new GraphQLList(AuthorType),
-            resolve(parent, args) {
-                return authors;
-            }
-        },
-
+        
         user: {
             type: UserType,
+            description: "Get user",
             args: { id: { type: GraphQLID } },
             async resolve(parent, args) {
                 let result = await User.findById(args.id);
@@ -168,6 +102,7 @@ const RootQuery = new GraphQLObjectType({
         },
         users: {
             type: new GraphQLList(UserType),
+            description: "Get Users",
             resolve(parent, args) {
                 return User.find({});;
             }
@@ -175,6 +110,7 @@ const RootQuery = new GraphQLObjectType({
 
         restaurant: {
             type: RestaurantType,
+            description: "Get restaurant",
             args: { id: { type: GraphQLID } },
             async resolve(parent, args) {
                 let result = await Restaurant.findById(args.id);
@@ -191,55 +127,50 @@ const RootQuery = new GraphQLObjectType({
         },
         restaurants: {
             type: new GraphQLList(RestaurantType),
+            description: "Get restaurants",
             resolve(parent, args) {
                 return Restaurant.find({});;
             }
         },
+
+        searchRestaurants: {
+            type: RestaurantType,
+            description: "Search Restaurants",
+            args: { keyword: { type: GraphQLString } },
+            async resolve(parent, args) {
+                let keyword = args.keyword;
+                let result = await Restaurant.find({});
+                console.log(result)
+                let restaurant = [];
+                for (var i = 0; i < result.length; i++) {
+                    if (result[i].name && result[i].name.includes(keyword)) {
+                        restaurant.push({'name':result[i].name, 'id':result[i]._id});
+                        continue;
+                    }
+                    if (result[i].location && result[i].location.includes(keyword)) {
+                        restaurant.push({'name':result[i].name, 'id':result[i]._id});
+                        continue;
+                    }
+                    for (var j = 0; j < result[i].dish.length; j++) {
+                        if (result[i].dish[j].name && result[i].dish[j].name.includes(keyword)) {
+                            restaurant.push({'name':result[i].name, 'id':result[i]._id});
+                            break;
+                        }
+                    }
+                }
+                return {'search': JSON.stringify(restaurant)};
+            }
+        },
+        
     }
 });
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
-        addAuthor: {
-            type: AuthorType,
-            args: {
-                name: { type: GraphQLString },
-                age: { type: GraphQLInt },
-                id: { type: GraphQLID }
-            },
-            resolve(parent, args) {
-                let author = {
-                    name: args.name,
-                    age: args.age,
-                    id: args.id
-                };
-                authors.push(author)
-                console.log("Authors", authors);
-                return author;
-            }
-        },
-
-        addBook: {
-            type: BookType,
-            args: {
-                name: { type: GraphQLString },
-                genre: { type: GraphQLString },
-                authorId: { type: GraphQLID },
-            },
-            resolve(parent, args) {
-                let book = {
-                    name: args.name,
-                    genre: args.genre,
-                    authorId: args.authorId,
-                    id: books.length+1
-                }
-                books.push(book);
-                return book;
-            }
-        },
-
+        
         addUser: {
+            description: "Add User",
             type: UserType,
             args: {
                 username: { type: GraphQLString },
@@ -272,6 +203,7 @@ const Mutation = new GraphQLObjectType({
 
         loginUser: {
             type: UserType,
+            description: "Login User",
             args: {
                 username: { type: GraphQLString },
                 password: { type: GraphQLString },
@@ -290,6 +222,7 @@ const Mutation = new GraphQLObjectType({
 
         addRestaurant: {
             type: RestaurantType,
+            description: "Add Restaurant",
             args: {
                 username: { type: GraphQLString },
                 password: { type: GraphQLString },
@@ -322,7 +255,8 @@ const Mutation = new GraphQLObjectType({
         },
 
         loginRestaurant: {
-            type: UserType,
+            type: RestaurantType,
+            description: "Login as restaurant",
             args: {
                 username: { type: GraphQLString },
                 password: { type: GraphQLString },
@@ -334,13 +268,13 @@ const Mutation = new GraphQLObjectType({
                 }
                 else {
                     return {'username': null}
-                }
-                
+                } 
             }
         },
 
         editRestaurant: {
             type: RestaurantType,
+            description: "Edit restaurant information",
             args: {
                 username: { type: GraphQLString },
                 name: { type: GraphQLString },
@@ -363,6 +297,7 @@ const Mutation = new GraphQLObjectType({
 
         editUser: {
             type: UserType,
+            description: "Edit user information",
             args: {
                 username: { type: GraphQLString },
                 email: { type: GraphQLString },
@@ -383,9 +318,9 @@ const Mutation = new GraphQLObjectType({
             }
         },
 
-
         addDish: {
             type: DishType,
+            description: "Add dish",
             args: {
                 username: { type: GraphQLString },
                 name: { type: GraphQLString },
@@ -401,31 +336,26 @@ const Mutation = new GraphQLObjectType({
                             
                         } 
                     },
-            
                 ) 
                 return {'name': args.name}
-                
             }
         },
 
         addOrder: {
             type: OrderType,
+            description: "Place order",
             args: {
                 restaurantId: { type: GraphQLString },
                 userId: { type: GraphQLString },
                 content: { type: GraphQLString },
                 status: { type: GraphQLString },
             },
-
-    
             async resolve(parent, args) {
-                console.log(args);
                 var today = new Date();
                 var dd = String(today.getDate()).padStart(2, '0');
                 var mm = String(today.getMonth() + 1).padStart(2, '0'); 
                 var yyyy = today.getFullYear();
                 today = yyyy + '-' + mm + '-' + dd;
-
                 await Restaurant.update(
                     { _id: args.restaurantId },
                     { 
@@ -434,7 +364,6 @@ const Mutation = new GraphQLObjectType({
                             order: {"userId": args.userId, "content": args.content, "status": "Pending", "date": today}
                         } 
                     },
-                    
                 ) ;
                 await User.update(
                     { _id: args.userId },
@@ -447,7 +376,22 @@ const Mutation = new GraphQLObjectType({
                     
                 ) ;
                 return {'content': args.content}
-                
+            }
+        },
+
+        updateOrder: {
+            type: OrderType,
+            description: "Update status of order",
+            args: {
+                restaurantId: { type: GraphQLString },
+                orderId: { type: GraphQLString },
+            },
+            async resolve(parent, args) {
+                let result = await Restaurant.update(
+                    { _id: args.restaurantId, "order._id" : args.orderId},
+                    {$set : {"order.$.status" : "Delivered"}},
+                ) ;
+                return {'orderId': args.orderId}
             }
         },
 

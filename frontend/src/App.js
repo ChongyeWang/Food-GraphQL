@@ -7,8 +7,6 @@ import {BrowserRouter} from 'react-router-dom';
 import Register from './components/Register';
 import Login from './components/Login';
 import Logout from './components/Logout';
-import BookList from './components/BookList';
-import AddBook from './components/AddBook';
 import Nav from './components/Navbar';
 import Home from './components/Home';
 import './App.css';
